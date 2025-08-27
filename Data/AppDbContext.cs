@@ -23,8 +23,8 @@ namespace FintcsApi.Data
                 entity.Property(u => u.Username).HasMaxLength(50);
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.Details).HasDefaultValue("{}");
-                entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-                entity.Property(u => u.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(u => u.CreatedAt).HasDefaultValueSql("datetime('now')");
+                entity.Property(u => u.UpdatedAt).HasDefaultValueSql("datetime('now')");
             });
         }
 

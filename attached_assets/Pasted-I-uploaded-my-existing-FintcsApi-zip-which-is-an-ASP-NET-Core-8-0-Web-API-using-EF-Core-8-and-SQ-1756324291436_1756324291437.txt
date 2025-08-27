@@ -1,0 +1,46 @@
+I uploaded my existing **FintcsApi.zip** which is an ASP.NET Core 8.0 Web API using EF Core 8 and SQLite.  
+This is a **finance-based society management system** named **Fintcs**.  
+
+Please extend the project with the following:
+
+---
+
+### 1. Add Models
+#### Society.cs
+- Fields:
+  - SocietyName (string), Address (string), City (string), Phone (string), Fax (string),
+    Email (string), Website (string), RegistrationNumber (string),
+    Tabs (JSON string → { Interest: { Dividend, OD, CD, Loan, EmergencyLoan, LAS }, Limit: { Share, Loan, EmergencyLoan } }),
+    IsPendingApproval (bool), PendingChanges (JSON string to store new changes until approved).
+- Rule:
+  - Only **one row** exists in the Society table (index 0).
+  - If table is empty, return default values (`""`).
+  - **Update restriction:** Society details can only be updated by **Admin**.
+  - After Admin edits → changes go into **PendingChanges** and `IsPendingApproval = true`.
+  - All users must accept the change before it becomes permanent.
+  - Once approved → update Society record and clear `PendingChanges`.
+
+#### Member.cs
+- Fields:
+  - MemNo (string, auto-generated serial → MEM_001, MEM_002, …),
+  - Name (string), FHName (string), OfficeAddress (string), City (string),
+    PhoneOffice (string), Branch (string), PhoneRes (string), Mobile (string),
+    Designation (string), ResidenceAddress (string), DOB (DateTime), DOJSociety (DateTime),
+    Email (string), DOJOrg (DateTime), DOR (DateTime), Nominee (string), NomineeRelation (string),
+    BankingDetails (JSON string),
+    IsPendingApproval (bool), PendingChanges (JSON string).
+- Rule:
+  - Members can be added by both **Admin** and **Users**.
+  - **Deletion is not allowed**.
+  - **Edits require approval**:
+    - Changes are stored in `PendingChanges`, `IsPendingApproval = true`.
+    - All users must approve before changes are committed.
+  - Auto-generate `MemNo`.
+
+---
+
+### 2. Update EF Core DbContext
+- Add:
+  ```csharp
+  public DbSet<Society> Societies { get; set; }
+  public DbSet<Member> Members { get; set; }

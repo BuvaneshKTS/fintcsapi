@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Bhuvanesh\\FINTCS\\FintcsApi\\FintcsApi.csproj": {}
+    "/home/runner/workspace/FintcsApi.csproj": {}
   },
   "projects": {
-    "C:\\Bhuvanesh\\FINTCS\\FintcsApi\\FintcsApi.csproj": {
+    "/home/runner/workspace/FintcsApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Bhuvanesh\\FINTCS\\FintcsApi\\FintcsApi.csproj",
+        "projectUniqueName": "/home/runner/workspace/FintcsApi.csproj",
         "projectName": "FintcsApi",
-        "projectPath": "C:\\Bhuvanesh\\FINTCS\\FintcsApi\\FintcsApi.csproj",
-        "packagesPath": "C:\\Users\\krita\\.nuget\\packages\\",
-        "outputPath": "C:\\Bhuvanesh\\FINTCS\\FintcsApi\\obj\\",
+        "projectPath": "/home/runner/workspace/FintcsApi.csproj",
+        "packagesPath": "/home/runner/.nuget/packages/",
+        "outputPath": "/home/runner/workspace/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\krita\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -37,8 +37,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -74,7 +73,7 @@
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[7.0.3, )"
+              "version": "[8.0.1, )"
             }
           },
           "imports": [
@@ -96,7 +95,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/nix/store/1d8g8d8xrrlxwfgbavgl4snymznfw5r7-dotnet-sdk-8.0.412/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -159,7 +159,7 @@ namespace FintcsApi.Controllers
 
                 // Validate role
                 var validRoles = new[] { "user", "admin" };
-                var validatedRole = validRoles.Contains(role?.ToLower()) ? role.ToLower() : "user";
+                var validatedRole = validRoles.Contains(role?.ToLower()) ? role!.ToLower() : "user";
 
                 // Update user details
                 var currentDetails = System.Text.Json.JsonSerializer.Deserialize<UserDetails>(user.Details) ?? new UserDetails();

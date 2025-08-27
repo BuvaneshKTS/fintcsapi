@@ -13,13 +13,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Database configuration - SQL Server
+// Database configuration - SQLite for Replit
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// JWT Configuration
+// JWT Configuration - use environment variables for security
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "your-super-secret-jwt-key-that-should-be-at-least-32-characters");
+var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? jwtSettings["Key"] ?? "your-super-secret-jwt-key-that-should-be-at-least-32-characters";
+var key = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -42,16 +43,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Add CORS
+// Add CORS - Allow any origin for Replit development
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("https://9dfbb952-960c-46b0-9a12-1df5c9e2a406-00-1b43krywigztw.riker.replit.dev/")
+            policy.AllowAnyOrigin()
                   .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
+                  .AllowAnyHeader();
         });
 });
 
