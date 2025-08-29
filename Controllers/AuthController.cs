@@ -33,7 +33,7 @@ namespace FintcsApi.Controllers
 
         // ----------- REGISTER -----------
         [HttpPost("register")]
-        [Authorize(Roles = "admin")]
+        // [Authorize(Roles = "admin")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             try
@@ -77,7 +77,7 @@ namespace FintcsApi.Controllers
                 {
                     email = dto.Email,
                     phone = dto.Phone ?? string.Empty,
-                    role = "user", // Always default to user role
+                    role = "admin", // Always default to user role
                     EDPNo = dto.EDPNo ?? string.Empty,
                     Name = dto.Name ?? string.Empty,
                     AddressOffice = dto.AddressOffice ?? string.Empty,

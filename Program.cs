@@ -12,9 +12,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Database configuration - SQL Server
+// Database configuration - PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 // JWT Configuration - use environment variables for security
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -78,7 +79,7 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.Migrate(); // Use migrations instead of EnsureCreated for SQL Server
+    context.Database.Migrate();
 }
 
 app.Run("http://0.0.0.0:5000");

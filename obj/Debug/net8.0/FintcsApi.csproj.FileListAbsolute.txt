@@ -491,3 +491,5 @@ C:\Bhuvanesh\FINTCS\fintcsapi-1\obj\Debug\net8.0\refint\FintcsApi.dll
 C:\Bhuvanesh\FINTCS\fintcsapi-1\obj\Debug\net8.0\FintcsApi.pdb
 C:\Bhuvanesh\FINTCS\fintcsapi-1\obj\Debug\net8.0\FintcsApi.genruntimeconfig.cache
 C:\Bhuvanesh\FINTCS\fintcsapi-1\obj\Debug\net8.0\ref\FintcsApi.dll
+C:\Bhuvanesh\FINTCS\fintcsapi-1\bin\Debug\net8.0\Npgsql.dll
+C:\Bhuvanesh\FINTCS\fintcsapi-1\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
