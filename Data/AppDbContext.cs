@@ -12,6 +12,8 @@ namespace FintcsApi.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Society> Societies { get; set; }
         public DbSet<Member> Members { get; set; }
+        public DbSet<SocietyApproval> SocietyApprovals { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,8 +27,8 @@ namespace FintcsApi.Data
                 entity.Property(u => u.Username).HasMaxLength(50);
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.Details).HasDefaultValue("{}");
-                entity.Property(u => u.CreatedAt).HasDefaultValueSql("datetime('now')");
-                entity.Property(u => u.UpdatedAt).HasDefaultValueSql("datetime('now')");
+                entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETDATE()");   // for SQL Server
+                entity.Property(u => u.UpdatedAt).HasDefaultValueSql("GETDATE()");   // for SQL Server
             });
 
             // Configure Society entity
@@ -38,8 +40,8 @@ namespace FintcsApi.Data
                 entity.Property(s => s.Phone).HasMaxLength(20);
                 entity.Property(s => s.Tabs).HasDefaultValue("{}");
                 entity.Property(s => s.PendingChanges).HasDefaultValue("{}");
-                entity.Property(s => s.CreatedAt).HasDefaultValueSql("datetime('now')");
-                entity.Property(s => s.UpdatedAt).HasDefaultValueSql("datetime('now')");
+                entity.Property(s => s.CreatedAt).HasDefaultValueSql("GETDATE()");   // for SQL Server;
+                entity.Property(s => s.UpdatedAt).HasDefaultValueSql("GETDATE()");   // for SQL Server;
             });
 
             // Configure Member entity
@@ -53,8 +55,9 @@ namespace FintcsApi.Data
                 entity.Property(m => m.Mobile).HasMaxLength(20);
                 entity.Property(m => m.BankingDetails).HasDefaultValue("{}");
                 entity.Property(m => m.PendingChanges).HasDefaultValue("{}");
-                entity.Property(m => m.CreatedAt).HasDefaultValueSql("datetime('now')");
-                entity.Property(m => m.UpdatedAt).HasDefaultValueSql("datetime('now')");
+                entity.Property(m => m.CreatedAt).HasDefaultValueSql("GETDATE()");   // for SQL Server
+                entity.Property(m => m.UpdatedAt).HasDefaultValueSql("GETDATE()");   // for SQL Server
+
             });
         }
 

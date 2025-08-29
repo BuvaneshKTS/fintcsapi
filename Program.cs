@@ -5,7 +5,6 @@ using System.Text;
 using FintcsApi.Data;
 using FintcsApi.Services;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,13 +12,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Database configuration - SQLite for Replit
+// Database configuration - SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // JWT Configuration - use environment variables for security
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? jwtSettings["Key"] ?? "your-super-secret-jwt-key-that-should-be-at-least-32-characters";
+var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
+             ?? jwtSettings["Key"] 
+             ?? "your-super-secret-jwt-key-that-should-be-at-least-32-characters";
 var key = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
@@ -43,7 +44,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Add CORS - Allow any origin for Replit development
+// Add CORS - Allow any origin for development
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
@@ -73,11 +74,11 @@ app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.MapControllers();
 
-// Ensure database is created
+// Ensure database is created / migrated
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
+    context.Database.Migrate(); // Use migrations instead of EnsureCreated for SQL Server
 }
 
 app.Run("http://0.0.0.0:5000");

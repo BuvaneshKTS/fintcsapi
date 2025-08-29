@@ -108,13 +108,69 @@ namespace FintcsApi.Controllers
         }
 
         // POST: api/society/approve-changes
+        // [HttpPost("approve-changes")]
+        // public async Task<IActionResult> ApprovePendingChanges()
+        // {
+        //     try
+        //     {
+        //         var society = await _context.Societies.FirstOrDefaultAsync();
+                
+        //         if (society == null || !society.IsPendingApproval)
+        //         {
+        //             return BadRequest(new ApiResponse<object>
+        //             {
+        //                 Success = false,
+        //                 Message = "No pending changes to approve"
+        //             });
+        //         }
+
+        //         // Parse pending changes and apply them
+        //         var pendingChanges = JsonSerializer.Deserialize<SocietyUpdateDto>(society.PendingChanges);
+                
+        //         if (pendingChanges != null)
+        //         {
+        //             society.SocietyName = pendingChanges.SocietyName;
+        //             society.Address = pendingChanges.Address;
+        //             society.City = pendingChanges.City;
+        //             society.Phone = pendingChanges.Phone;
+        //             society.Fax = pendingChanges.Fax;
+        //             society.Email = pendingChanges.Email;
+        //             society.Website = pendingChanges.Website;
+        //             society.RegistrationNumber = pendingChanges.RegistrationNumber;
+        //             society.Tabs = JsonSerializer.Serialize(pendingChanges.Tabs);
+        //         }
+
+        //         // Clear pending changes
+        //         society.PendingChanges = "{}";
+        //         society.IsPendingApproval = false;
+
+        //         await _context.SaveChangesAsync();
+
+        //         return Ok(new ApiResponse<Society>
+        //         {
+        //             Success = true,
+        //             Data = society,
+        //             Message = "Society changes approved and applied successfully"
+        //         });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, new ApiResponse<object>
+        //         {
+        //             Success = false,
+        //             Message = "Error approving society changes",
+        //             Errors = new[] { ex.Message }
+        //         });
+        //     }
+        // }
+
+        // POST: api/society/approve-changes
         [HttpPost("approve-changes")]
         public async Task<IActionResult> ApprovePendingChanges()
         {
             try
             {
                 var society = await _context.Societies.FirstOrDefaultAsync();
-                
                 if (society == null || !society.IsPendingApproval)
                 {
                     return BadRequest(new ApiResponse<object>
@@ -124,33 +180,72 @@ namespace FintcsApi.Controllers
                     });
                 }
 
-                // Parse pending changes and apply them
-                var pendingChanges = JsonSerializer.Deserialize<SocietyUpdateDto>(society.PendingChanges);
-                
-                if (pendingChanges != null)
+                var userId = User.Identity?.Name; // Or however you store logged-in user
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                // Prevent double approval
+                if (await _context.SocietyApprovals
+                    .AnyAsync(a => a.SocietyId == society.Id && a.UserId == userId && a.Approved))
                 {
-                    society.SocietyName = pendingChanges.SocietyName;
-                    society.Address = pendingChanges.Address;
-                    society.City = pendingChanges.City;
-                    society.Phone = pendingChanges.Phone;
-                    society.Fax = pendingChanges.Fax;
-                    society.Email = pendingChanges.Email;
-                    society.Website = pendingChanges.Website;
-                    society.RegistrationNumber = pendingChanges.RegistrationNumber;
-                    society.Tabs = JsonSerializer.Serialize(pendingChanges.Tabs);
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "You have already approved these changes."
+                    });
                 }
 
-                // Clear pending changes
-                society.PendingChanges = "{}";
-                society.IsPendingApproval = false;
+                // Save approval
+                var approval = new SocietyApproval
+                {
+                    SocietyId = society.Id,
+                    UserId = userId,
+                    Approved = true,
+                    ApprovedAt = DateTime.UtcNow
+                };
 
+                _context.SocietyApprovals.Add(approval);
                 await _context.SaveChangesAsync();
 
-                return Ok(new ApiResponse<Society>
+                // ✅ Check if all users approved
+                var totalUsers = await _context.Users.CountAsync(); // Adjust if users are tied to society
+                var approvedUsers = await _context.SocietyApprovals
+                    .CountAsync(a => a.SocietyId == society.Id && a.Approved);
+
+                if (approvedUsers >= totalUsers)
+                {
+                    // Apply pending changes now
+                    var pendingChanges = JsonSerializer.Deserialize<SocietyUpdateDto>(society.PendingChanges);
+                    if (pendingChanges != null)
+                    {
+                        society.SocietyName = pendingChanges.SocietyName;
+                        society.Address = pendingChanges.Address;
+                        society.City = pendingChanges.City;
+                        society.Phone = pendingChanges.Phone;
+                        society.Fax = pendingChanges.Fax;
+                        society.Email = pendingChanges.Email;
+                        society.Website = pendingChanges.Website;
+                        society.RegistrationNumber = pendingChanges.RegistrationNumber;
+                        society.Tabs = JsonSerializer.Serialize(pendingChanges.Tabs);
+                    }
+
+                    // Clear pending changes
+                    society.PendingChanges = "{}";
+                    society.IsPendingApproval = false;
+
+                    await _context.SaveChangesAsync();
+
+                    return Ok(new ApiResponse<object>
+                    {
+                        Success = true,
+                        Message = "✅ All users approved. Changes applied successfully!"
+                    });
+                }
+
+                return Ok(new ApiResponse<object>
                 {
                     Success = true,
-                    Data = society,
-                    Message = "Society changes approved and applied successfully"
+                    Message = "Your approval is recorded. Waiting for other users."
                 });
             }
             catch (Exception ex)
@@ -163,6 +258,7 @@ namespace FintcsApi.Controllers
                 });
             }
         }
+
 
         // GET: api/society/pending-changes
         [HttpGet("pending-changes")]
