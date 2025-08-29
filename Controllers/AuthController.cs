@@ -238,6 +238,166 @@ namespace FintcsApi.Controllers
             }
         }
 
+
+        // ----------- UPDATE USER -----------
+        [HttpPut("update/{id}")]
+        [Authorize(Roles = "admin,user")] // Adjust roles as needed
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] RegisterDto dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Invalid input data",
+                        Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToArray()
+                    });
+                }
+
+                // Find user by Id
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+                if (user == null)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "User not found",
+                        Errors = new[] { $"No user exists with Id {id}" }
+                    });
+                }
+
+                // Check if username is taken by another user
+                if (await _context.Users.AnyAsync(u => u.Username == dto.Username && u.Id != id))
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Username already taken",
+                        Errors = new[] { $"Username '{dto.Username}' is already in use" }
+                    });
+                }
+
+                // Check if email is taken by another user
+                var existingUserWithEmail = await _context.Users
+                    .Where(u => u.Id != id)
+                    .FirstOrDefaultAsync(u => u.Details.Contains(dto.Email));
+
+                if (existingUserWithEmail != null)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Email already registered",
+                        Errors = new[] { $"Email '{dto.Email}' is already registered" }
+                    });
+                }
+
+                // Update user details
+                var details = new UserDetails
+                {
+                    email = dto.Email,
+                    phone = dto.Phone ?? string.Empty,
+                    role = "admin", // Or you can allow updating role from dto if needed
+                    EDPNo = dto.EDPNo ?? string.Empty,
+                    Name = dto.Name ?? string.Empty,
+                    AddressOffice = dto.AddressOffice ?? string.Empty,
+                    AddressResidential = dto.AddressResidential ?? string.Empty,
+                    Designation = dto.Designation ?? string.Empty,
+                    PhoneOffice = dto.PhoneOffice ?? string.Empty,
+                    PhoneResidential = dto.PhoneResidential ?? string.Empty,
+                    Mobile = dto.Mobile ?? string.Empty
+                };
+
+                user.Username = dto.Username;
+                user.PasswordHash = string.IsNullOrEmpty(dto.Password) ? user.PasswordHash : BCrypt.Net.BCrypt.HashPassword(dto.Password);
+                user.Details = JsonSerializer.Serialize(details);
+
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+
+                // Prepare response
+                var userResponse = new UserResponseDto
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    Roles = user.Role,
+                    Details = new UserDetailsDto
+                    {
+                        EDPNo = dto.EDPNo ?? string.Empty,
+                        Name = dto.Name ?? string.Empty,
+                        AddressOffice = dto.AddressOffice ?? string.Empty,
+                        AddressResidential = dto.AddressResidential ?? string.Empty,
+                        Designation = dto.Designation ?? string.Empty,
+                        PhoneOffice = dto.PhoneOffice ?? string.Empty,
+                        PhoneResidential = dto.PhoneResidential ?? string.Empty,
+                        Mobile = dto.Mobile ?? string.Empty,
+                        Email = dto.Email
+                    },
+                    CreatedAt = user.CreatedAt
+                };
+
+                return Ok(new ApiResponse<UserResponseDto>
+                {
+                    Success = true,
+                    Message = "User updated successfully",
+                    Data = userResponse
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Internal server error occurred during update",
+                    Errors = new[] { ex.Message }
+                });
+            }
+        }
+
+
+        // ----------- DELETE USER -----------
+        [HttpDelete("delete/{id}")]
+        [Authorize(Roles = "admin")] // Only admin can delete users
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            try
+            {
+                // Find user by Id
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+                if (user == null)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "User not found",
+                        Errors = new[] { $"No user exists with Id {id}" }
+                    });
+                }
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+
+                return Ok(new ApiResponse<object>
+                {
+                    Success = true,
+                    Message = "User deleted successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Internal server error occurred during delete",
+                    Errors = new[] { ex.Message }
+                });
+            }
+        }
+
         // ----------- GET VALID ROLES -----------
         [HttpGet("roles")]
         public IActionResult GetValidRoles()
