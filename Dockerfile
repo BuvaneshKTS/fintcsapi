@@ -2,16 +2,17 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy everything and restore dependencies
+# Copy everything
 COPY . .
-RUN dotnet restore "fintcsapi.csproj"
 
+# Restore dependencies
+RUN dotnet restore "FintcsApi.csproj"
 
 # Build and publish
-RUN dotnet publish "fintcsapi.csproj" -c Release -o /app/publish
+RUN dotnet publish "FintcsApi.csproj" -c Release -o /app/publish
 
-# Final image
+# Final runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "fintcsapi.dll"]
+ENTRYPOINT ["dotnet", "FintcsApi.dll"]
