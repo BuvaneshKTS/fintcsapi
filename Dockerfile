@@ -4,10 +4,11 @@ WORKDIR /src
 
 # Copy everything and restore dependencies
 COPY . .
-RUN dotnet restore "fintcsapi/fintcsapi.csproj"
+RUN dotnet restore "fintcsapi.csproj"
+
 
 # Build and publish
-RUN dotnet publish "fintcsapi/fintcsapi.csproj" -c Release -o /app/publish
+RUN dotnet publish "fintcsapi.csproj" -c Release -o /app/publish
 
 # Final image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
