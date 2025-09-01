@@ -19,6 +19,64 @@ namespace FintcsApi.Controllers
             _context = context;
         }
 
+        // POST: api/society (Admin only - only works when table is empty)
+        [HttpPost]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> CreateSociety([FromBody] SocietyUpdateDto createDto)
+        {
+            try
+            {
+                // Check if society table is empty
+                var existingSocietyCount = await _context.Societies.CountAsync();
+                
+                if (existingSocietyCount > 0)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Society already exists. Only one society is allowed in the system."
+                    });
+                }
+
+                // Create new society
+                var society = new Society
+                {
+                    SocietyName = createDto.SocietyName,
+                    Address = createDto.Address,
+                    City = createDto.City,
+                    Phone = createDto.Phone,
+                    Fax = createDto.Fax,
+                    Email = createDto.Email,
+                    Website = createDto.Website,
+                    RegistrationNumber = createDto.RegistrationNumber,
+                    Tabs = JsonSerializer.Serialize(createDto.Tabs),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsPendingApproval = false,
+                    PendingChanges = "{}"
+                };
+
+                _context.Societies.Add(society);
+                await _context.SaveChangesAsync();
+
+                return Ok(new ApiResponse<Society>
+                {
+                    Success = true,
+                    Data = society,
+                    Message = "Society created successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Error creating society",
+                    Errors = new[] { ex.Message }
+                });
+            }
+        }
+
         // GET: api/society
         [HttpGet]
         public async Task<IActionResult> GetSociety()
