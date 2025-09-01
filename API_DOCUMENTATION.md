@@ -492,6 +492,29 @@ curl -X PUT "http://localhost:5000/api/users/2/role" \
   -d '"admin"'
 ```
 
+### Example 5: Create Society (When Table is Empty)
+
+```bash
+curl -X POST "http://localhost:5000/api/society" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "societyName": "ABC Credit Society",
+    "address": "123 Main Street",
+    "city": "Mumbai",
+    "phone": "022-12345678",
+    "email": "contact@abcsociety.com",
+    "tabs": {
+      "interest": {
+        "dividend": 8.5
+      },
+      "limit": {
+        "share": 100000
+      }
+    }
+  }'
+```
+
 ---
 
 ## Society Management
@@ -557,11 +580,91 @@ Authorization: Bearer YOUR_JWT_TOKEN_HERE
 
 ---
 
-### 8. Update Society Information (Admin Only)
+### 8. Create Society (Admin Only)
+
+**Endpoint:** `POST /api/society`
+
+**Description:** Create a new society. Only works when the society table is empty (ensures only one society exists in the system).
+
+**Authentication:** Required (Admin role only)
+
+**Headers:**
+```
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "societyName": "ABC Credit Society",
+  "address": "123 Main Street",
+  "city": "Mumbai",
+  "phone": "022-12345678",
+  "fax": "022-87654321",
+  "email": "contact@abcsociety.com",
+  "website": "https://www.abcsociety.com",
+  "registrationNumber": "REG001",
+  "tabs": {
+    "interest": {
+      "dividend": 8.5,
+      "od": 12.0,
+      "cd": 6.0,
+      "loan": 10.0,
+      "emergencyLoan": 15.0,
+      "las": 7.0
+    },
+    "limit": {
+      "share": 100000,
+      "loan": 500000,
+      "emergencyLoan": 50000
+    }
+  }
+}
+```
+
+**Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Society created successfully.",
+  "data": {
+    "id": 1,
+    "societyName": "ABC Credit Society",
+    "address": "123 Main Street",
+    "city": "Mumbai",
+    "phone": "022-12345678",
+    "fax": "022-87654321",
+    "email": "contact@abcsociety.com",
+    "website": "https://www.abcsociety.com",
+    "registrationNumber": "REG001",
+    "tabs": "{\"Interest\":{\"Dividend\":8.5,\"OD\":12.0,\"CD\":6.0,\"Loan\":10.0,\"EmergencyLoan\":15.0,\"LAS\":7.0},\"Limit\":{\"Share\":100000,\"Loan\":500000,\"EmergencyLoan\":50000}}",
+    "isPendingApproval": false,
+    "pendingChanges": "{}",
+    "createdAt": "2025-01-01T10:00:00.000Z",
+    "updatedAt": "2025-01-01T10:00:00.000Z"
+  },
+  "errors": []
+}
+```
+
+**Failure Response - Society Already Exists (400 Bad Request):**
+```json
+{
+  "success": false,
+  "message": "Society already exists. Only one society is allowed in the system.",
+  "data": null,
+  "errors": []
+}
+```
+
+---
+
+### 9. Update Society Information (Admin Only)
 
 **Endpoint:** `PUT /api/society`
 
-**Description:** Submit society information updates for approval. Changes will be pending until approved by all users.
+**Description:** Submit society information updates for approval. Changes will be pending until approved by all non-admin users.
 
 **Authentication:** Required (Admin role only)
 
@@ -600,49 +703,53 @@ Content-Type: application/json
 }
 ```
 
-**Success Response (200 OK):**
+**Success Response - No Users to Approve (200 OK):**
 ```json
 {
   "success": true,
-  "message": "Society update submitted for approval. All users must approve before changes become permanent."
+  "message": "Society updated successfully (no users to approve)."
+}
+```
+
+**Success Response - Requires Approval (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Society update submitted for approval. All 2 users must approve before changes become permanent.",
+  "data": {
+    "requiredApprovals": 2
+  }
 }
 ```
 
 ---
 
-### 9. Approve Society Changes
+### 10. Approve Society Changes (Non-Admin Users Only)
 
 **Endpoint:** `POST /api/society/approve-changes`
 
-**Description:** Approve and apply pending society changes.
+**Description:** Allow non-admin users to approve pending society changes. When all non-admin users approve, changes are automatically applied.
 
-**Authentication:** Required
+**Authentication:** Required (Non-admin users only)
 
 **Headers:**
 ```
 Authorization: Bearer YOUR_JWT_TOKEN_HERE
 ```
 
-**Success Response (200 OK):**
+**Success Response - Approval Recorded (200 OK):**
 ```json
 {
   "success": true,
-  "data": {
-    "id": 1,
-    "societyName": "ABC Credit Society Ltd",
-    "address": "456 Updated Street",
-    "city": "Mumbai",
-    "phone": "022-11223344",
-    "fax": "022-44332211",
-    "email": "info@abcsociety.com",
-    "website": "https://www.abcsociety.org",
-    "registrationNumber": "REG001-UPD",
-    "tabs": "{\"Interest\":{\"Dividend\":9.0,\"OD\":12.5,\"CD\":6.5,\"Loan\":10.5,\"EmergencyLoan\":15.5,\"LAS\":7.5},\"Limit\":{\"Share\":150000,\"Loan\":600000,\"EmergencyLoan\":75000}}",
-    "isPendingApproval": false,
-    "createdAt": "2025-01-01T10:00:00.000Z",
-    "updatedAt": "2025-01-01T12:00:00.000Z"
-  },
-  "message": "Society changes approved and applied successfully"
+  "message": "Your approval is recorded. Waiting for 1 more approvals."
+}
+```
+
+**Success Response - All Approved (200 OK):**
+```json
+{
+  "success": true,
+  "message": "✅ All users approved. Changes applied successfully!"
 }
 ```
 
@@ -654,13 +761,121 @@ Authorization: Bearer YOUR_JWT_TOKEN_HERE
 }
 ```
 
+**Failure Response - Admin Cannot Approve (400 Bad Request):**
+```json
+{
+  "success": false,
+  "message": "Administrators cannot approve their own changes."
+}
+```
+
+**Failure Response - Already Approved (400 Bad Request):**
+```json
+{
+  "success": false,
+  "message": "You have already approved these changes."
+}
+```
+
 ---
 
-### 10. Get Society Pending Changes
+### 11. Get Society Approval Status (Admin Only)
+
+**Endpoint:** `GET /api/society/approval-status`
+
+**Description:** Get detailed approval status showing which users have approved and which are still pending. Only available to admin users.
+
+**Authentication:** Required (Admin role only)
+
+**Headers:**
+```
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+```
+
+**Success Response - Has Pending Changes (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "hasPendingChanges": true,
+    "changeRequestId": "",
+    "totalUsers": 2,
+    "approvedCount": 1,
+    "pendingCount": 1,
+    "approvedUsers": [
+      {
+        "userId": 2,
+        "username": "user1",
+        "name": "Test User 1",
+        "email": "user1@test.com",
+        "phone": "1234567891",
+        "edpNo": "",
+        "hasApproved": true,
+        "approvedAt": "2025-09-01 05:38:15",
+        "status": "Approved"
+      }
+    ],
+    "pendingUsers": [
+      {
+        "userId": 3,
+        "username": "user2",
+        "name": "Test User 2",
+        "email": "user2@test.com",
+        "phone": "1234567892",
+        "edpNo": "",
+        "hasApproved": false,
+        "approvedAt": null,
+        "status": "Pending"
+      }
+    ],
+    "allUsers": [
+      {
+        "userId": 2,
+        "username": "user1",
+        "name": "Test User 1",
+        "email": "user1@test.com",
+        "phone": "1234567891",
+        "edpNo": "",
+        "hasApproved": true,
+        "approvedAt": "2025-09-01 05:38:15",
+        "status": "Approved"
+      },
+      {
+        "userId": 3,
+        "username": "user2",
+        "name": "Test User 2",
+        "email": "user2@test.com",
+        "phone": "1234567892",
+        "edpNo": "",
+        "hasApproved": false,
+        "approvedAt": null,
+        "status": "Pending"
+      }
+    ],
+    "pendingChanges": "{\"SocietyName\":\"Updated Test Society\",\"Address\":\"123 New Street\",\"City\":\"Test City\",\"Phone\":\"555-0123\",\"Fax\":\"\",\"Email\":\"society@test.com\",\"Website\":\"\",\"RegistrationNumber\":\"\",\"Tabs\":{\"Interest\":{\"Dividend\":5.5,\"OD\":0,\"CD\":0,\"Loan\":0,\"EmergencyLoan\":0,\"LAS\":0},\"Limit\":{\"Share\":10000,\"Loan\":0,\"EmergencyLoan\":0}}}"
+  },
+  "errors": []
+}
+```
+
+**Success Response - No Pending Changes (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "hasPendingChanges": false,
+    "message": "No pending changes requiring approval"
+  }
+}
+```
+
+---
+
+### 12. Get Society Pending Changes
 
 **Endpoint:** `GET /api/society/pending-changes`
 
-**Description:** Check if there are pending society changes awaiting approval.
+**Description:** Check if there are pending society changes awaiting approval. Shows approval status for current user.
 
 **Authentication:** Required
 
@@ -675,7 +890,29 @@ Authorization: Bearer YOUR_JWT_TOKEN_HERE
   "success": true,
   "data": {
     "hasPendingChanges": true,
-    "pendingChanges": "{\"SocietyName\":\"ABC Credit Society Ltd\",\"Address\":\"456 Updated Street\",\"City\":\"Mumbai\",\"Phone\":\"022-11223344\",\"Fax\":\"022-44332211\",\"Email\":\"info@abcsociety.com\",\"Website\":\"https://www.abcsociety.org\",\"RegistrationNumber\":\"REG001-UPD\",\"Tabs\":{\"Interest\":{\"Dividend\":9.0,\"OD\":12.5,\"CD\":6.5,\"Loan\":10.5,\"EmergencyLoan\":15.5,\"LAS\":7.5},\"Limit\":{\"Share\":150000,\"Loan\":600000,\"EmergencyLoan\":75000}}}"
+    "pendingChanges": "{\"SocietyName\":\"Updated Test Society\",\"Address\":\"123 New Street\",\"City\":\"Test City\",\"Phone\":\"555-0123\",\"Fax\":\"\",\"Email\":\"society@test.com\",\"Website\":\"\",\"RegistrationNumber\":\"\",\"Tabs\":{\"Interest\":{\"Dividend\":5.5,\"OD\":0,\"CD\":0,\"Loan\":0,\"EmergencyLoan\":0,\"LAS\":0},\"Limit\":{\"Share\":10000,\"Loan\":0,\"EmergencyLoan\":0}}}",
+    "approvalStatus": [
+      {
+        "userId": 2,
+        "username": "user1",
+        "name": "Test User 1",
+        "email": "user1@test.com",
+        "hasApproved": false,
+        "approvedAt": null
+      },
+      {
+        "userId": 3,
+        "username": "user2",
+        "name": "Test User 2",
+        "email": "user2@test.com",
+        "hasApproved": false,
+        "approvedAt": null
+      }
+    ],
+    "totalUsers": 2,
+    "approvedCount": 0,
+    "pendingCount": 2,
+    "changeRequestId": ""
   },
   "message": null
 }
@@ -685,16 +922,76 @@ Authorization: Bearer YOUR_JWT_TOKEN_HERE
 ```json
 {
   "success": true,
-  "data": null,
+  "data": {
+    "hasPendingChanges": false
+  },
   "message": "No pending changes"
 }
 ```
 
 ---
 
+## Society Approval Workflow
+
+The society approval system ensures that any changes made by administrators require approval from all non-admin users before being applied. This provides democratic control over important society configuration changes.
+
+### How It Works
+
+1. **Admin Proposes Changes**: Admin users submit society updates via `PUT /api/society`
+2. **Approval Required**: If non-admin users exist, changes are stored as "pending" and require approval
+3. **User Voting**: All non-admin users must approve via `POST /api/society/approve-changes`
+4. **Automatic Application**: When all users approve, changes are automatically applied
+5. **Admin Monitoring**: Admins can track approval status via `GET /api/society/approval-status`
+
+### Key Rules
+
+- **Admin cannot approve their own changes**: Prevents self-approval
+- **All non-admin users must approve**: Democratic decision-making
+- **One approval per user**: Prevents duplicate voting
+- **Auto-apply when complete**: No manual intervention needed
+- **No users = immediate application**: If no non-admin users exist, changes apply immediately
+
+### Example Workflow
+
+```bash
+# 1. Admin submits society update
+curl -X PUT "http://localhost:5000/api/society" \
+  -H "Authorization: Bearer ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"societyName":"Updated Society","address":"New Address",...}'
+
+# Response: "Society update submitted for approval. All 2 users must approve..."
+
+# 2. Admin checks approval status
+curl -X GET "http://localhost:5000/api/society/approval-status" \
+  -H "Authorization: Bearer ADMIN_TOKEN"
+
+# Response: Shows which users approved and which are pending
+
+# 3. User 1 approves
+curl -X POST "http://localhost:5000/api/society/approve-changes" \
+  -H "Authorization: Bearer USER1_TOKEN"
+
+# Response: "Your approval is recorded. Waiting for 1 more approvals."
+
+# 4. User 2 approves (final approval)
+curl -X POST "http://localhost:5000/api/society/approve-changes" \
+  -H "Authorization: Bearer USER2_TOKEN"
+
+# Response: "✅ All users approved. Changes applied successfully!"
+
+# 5. Changes are now live
+curl -X GET "http://localhost:5000/api/society" \
+  -H "Authorization: Bearer ANY_TOKEN"
+
+# Response: Shows updated society information
+```
+
+---
+
 ## Member Management
 
-### 11. Get All Members
+### 13. Get All Members
 
 **Endpoint:** `GET /api/member`
 
@@ -748,7 +1045,7 @@ Authorization: Bearer YOUR_JWT_TOKEN_HERE
 
 ---
 
-### 12. Get Member by ID
+### 14. Get Member by ID
 
 **Endpoint:** `GET /api/member/{id}`
 
@@ -811,7 +1108,7 @@ Authorization: Bearer YOUR_JWT_TOKEN_HERE
 
 ---
 
-### 13. Create New Member
+### 15. Create New Member
 
 **Endpoint:** `POST /api/member`
 
@@ -894,7 +1191,7 @@ Content-Type: application/json
 
 ---
 
-### 14. Update Member Information
+### 16. Update Member Information
 
 **Endpoint:** `PUT /api/member/{id}`
 
