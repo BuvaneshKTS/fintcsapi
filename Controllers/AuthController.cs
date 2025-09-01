@@ -409,5 +409,112 @@ namespace FintcsApi.Controllers
                 Data = ValidRoles
             });
         }
+
+        // ----------- INITIAL SETUP - Create first admin user -----------
+        [HttpPost("setup-admin")]
+        public async Task<IActionResult> SetupAdmin([FromBody] RegisterDto dto)
+        {
+            try
+            {
+                // Check if any admin users already exist
+                var adminExists = await _context.Users.AnyAsync(u => u.Details.Contains("\"role\":\"admin\""));
+                if (adminExists)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Admin user already exists. Use the regular registration endpoint.",
+                        Errors = new[] { "Initial setup has already been completed." }
+                    });
+                }
+
+                // Validate input
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Invalid input data",
+                        Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToArray()
+                    });
+                }
+
+                // Check if user already exists
+                if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "User already exists",
+                        Errors = new[] { $"Username '{dto.Username}' is already taken" }
+                    });
+                }
+
+                // Create admin user details
+                var details = new UserDetails
+                {
+                    email = dto.Email,
+                    phone = dto.Phone ?? string.Empty,
+                    role = "admin", // Set as admin
+                    EDPNo = dto.EDPNo ?? string.Empty,
+                    Name = dto.Name ?? string.Empty,
+                    AddressOffice = dto.AddressOffice ?? string.Empty,
+                    AddressResidential = dto.AddressResidential ?? string.Empty,
+                    Designation = dto.Designation ?? string.Empty,
+                    PhoneOffice = dto.PhoneOffice ?? string.Empty,
+                    PhoneResidential = dto.PhoneResidential ?? string.Empty,
+                    Mobile = dto.Mobile ?? string.Empty
+                };
+
+                // Create new admin user
+                var user = new User
+                {
+                    Username = dto.Username,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                    Details = JsonSerializer.Serialize(details)
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                var userResponse = new UserResponseDto
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    Roles = user.Role,
+                    Details = new UserDetailsDto
+                    {
+                        EDPNo = dto.EDPNo ?? string.Empty,
+                        Name = dto.Name ?? string.Empty,
+                        AddressOffice = dto.AddressOffice ?? string.Empty,
+                        AddressResidential = dto.AddressResidential ?? string.Empty,
+                        Designation = dto.Designation ?? string.Empty,
+                        PhoneOffice = dto.PhoneOffice ?? string.Empty,
+                        PhoneResidential = dto.PhoneResidential ?? string.Empty,
+                        Mobile = dto.Mobile ?? string.Empty,
+                        Email = dto.Email
+                    },
+                    CreatedAt = user.CreatedAt
+                };
+
+                return Ok(new ApiResponse<UserResponseDto>
+                {
+                    Success = true,
+                    Message = "Admin user created successfully. You can now login and register other users.",
+                    Data = userResponse
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Internal server error occurred during admin setup",
+                    Errors = new[] { ex.Message }
+                });
+            }
+        }
     }
 }

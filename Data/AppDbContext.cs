@@ -59,6 +59,24 @@ namespace FintcsApi.Data
                 entity.Property(m => m.UpdatedAt).HasDefaultValueSql("GETDATE()");   // for SQL Server
 
             });
+
+            // Configure SocietyApproval entity
+            modelBuilder.Entity<SocietyApproval>(entity =>
+            {
+                entity.HasKey(sa => sa.Id);
+
+                // Configure relationships
+                entity.HasOne(sa => sa.Society)
+                      .WithMany()
+                      .HasForeignKey(sa => sa.SocietyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Note: UserId is string to match existing migration, manual relationship
+                entity.Ignore(sa => sa.User); // Ignore navigation property since FK is string
+
+                // Unique constraint to prevent double approvals
+                entity.HasIndex(sa => new { sa.SocietyId, sa.UserId }).IsUnique();
+            });
         }
 
         public override int SaveChanges()
