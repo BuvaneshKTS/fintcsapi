@@ -22,6 +22,82 @@ namespace FintcsApi.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("FintcsApi.Models.LoanTaken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AuthorizedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Bank")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ChequeDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ChequeNo")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CustomType")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("InstallmentAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Installments")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("LoanAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("LoanDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LoanNo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LoanType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MemberNo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("NetLoan")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("NewLoanShare")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("PayAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("PaymentMode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("PreviousLoan")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Loans");
+                });
+
             modelBuilder.Entity("FintcsApi.Models.Member", b =>
                 {
                     b.Property<int>("Id")
@@ -231,7 +307,8 @@ namespace FintcsApi.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SocietyId");
+                    b.HasIndex("SocietyId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("SocietyApprovals");
                 });

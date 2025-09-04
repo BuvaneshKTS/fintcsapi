@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/runner/workspace/FintcsApi.csproj": {}
+    "C:\\Users\\krita\\Downloads\\fintcsapi\\FintcsApi.csproj": {}
   },
   "projects": {
-    "/home/runner/workspace/FintcsApi.csproj": {
+    "C:\\Users\\krita\\Downloads\\fintcsapi\\FintcsApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/runner/workspace/FintcsApi.csproj",
+        "projectUniqueName": "C:\\Users\\krita\\Downloads\\fintcsapi\\FintcsApi.csproj",
         "projectName": "FintcsApi",
-        "projectPath": "/home/runner/workspace/FintcsApi.csproj",
-        "packagesPath": "/home/runner/.nuget/packages/",
-        "outputPath": "/home/runner/workspace/obj/",
+        "projectPath": "C:\\Users\\krita\\Downloads\\fintcsapi\\FintcsApi.csproj",
+        "packagesPath": "C:\\Users\\krita\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\krita\\Downloads\\fintcsapi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/runner/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\krita\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -37,7 +37,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -99,7 +100,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/nix/store/1d8g8d8xrrlxwfgbavgl4snymznfw5r7-dotnet-sdk-8.0.412/share/dotnet/sdk/8.0.412/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

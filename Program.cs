@@ -24,6 +24,7 @@ var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
              ?? "your-super-secret-jwt-key-that-should-be-at-least-32-characters";
 var key = Encoding.UTF8.GetBytes(jwtKey);
 
+// ✅ Configure JWT (disable issuer/audience validation for dev)
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -37,28 +38,50 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidateAudience = true,
-        ValidAudience = jwtSettings["Audience"],
+
+        // ❌ Disable for devtunnels testing
+        ValidateIssuer = false,
+        ValidateAudience = false,
+
+        // ✅ Keep lifetime validation
+        ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
 });
 
-// Add CORS - Allow any origin for development
+// ✅ CORS - Allow Angular frontend + DevTunnels
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
+            policy
+                .SetIsOriginAllowed(origin =>
+                {
+                    // Allow localhost Angular
+                    if (origin == "http://localhost:4200") return true;
+
+                    // Allow all *.devtunnels.ms subdomains
+                    try
+                    {
+                        var host = new Uri(origin).Host;
+                        return host.EndsWith("devtunnels.ms");
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                })
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
         });
 });
 
 // Register services
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<LoanTakenService>();
+
 
 var app = builder.Build();
 
@@ -66,7 +89,9 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// ✅ CORS must come before Authentication/Authorization
 app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -82,4 +107,5 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate();
 }
 
+// ✅ Bind to all interfaces (for devtunnels)
 app.Run("http://0.0.0.0:5000");

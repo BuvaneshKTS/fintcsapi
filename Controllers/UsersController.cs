@@ -1,3 +1,4 @@
+// UsersController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ namespace FintcsApi.Controllers
 
         // ----------- GET ALL USERS (Admin only) -----------
         [HttpGet]
-        [Authorize(Roles = "admin")]
+        // [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetUsers()
         {
             try

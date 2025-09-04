@@ -13,6 +13,8 @@ namespace FintcsApi.Data
         public DbSet<Society> Societies { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<SocietyApproval> SocietyApprovals { get; set; }
+        public DbSet<LoanTaken> Loans { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
