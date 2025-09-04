@@ -56,10 +56,15 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .SetIsOriginAllowed(origin =>
+                .SetIsOriginAllowed(origin => //http://localhost:4200
                 {
                     // Allow localhost Angular
-                    if (origin == "http://localhost:4200") return true;
+                    if (origin == "http://localhost:4200")
+                        return true;
+
+                    // Allow production domain
+                    if (origin == "https://fintcs.kritatechnosolutions.com")
+                        return true;
 
                     // Allow all *.devtunnels.ms subdomains
                     try
