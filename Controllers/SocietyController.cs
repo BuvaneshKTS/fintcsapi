@@ -54,8 +54,14 @@ namespace FintcsApi.Controllers
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     IsPendingApproval = false,
-                    PendingChanges = "{}"
+                    PendingChanges = "{}",
+
+                    // New fields
+                    chBounceCharge = createDto.chBounceCharge,
+                    targetDropdown = createDto.targetDropdown,
+                    dropdownArray = createDto.dropdownArray
                 };
+
 
                 _context.Societies.Add(society);
                 await _context.SaveChangesAsync();
@@ -146,6 +152,10 @@ namespace FintcsApi.Controllers
                     society.RegistrationNumber = updateDto.RegistrationNumber;
                     society.Tabs = JsonSerializer.Serialize(updateDto.Tabs);
                     society.UpdatedAt = DateTime.UtcNow;
+                    society.chBounceCharge = updateDto.chBounceCharge;
+                    society.targetDropdown = updateDto.targetDropdown;
+                    society.dropdownArray = updateDto.dropdownArray;
+
 
                     // Clear any pending state
                     society.PendingChanges = "{}";
@@ -171,7 +181,10 @@ namespace FintcsApi.Controllers
                     Email = updateDto.Email,
                     Website = updateDto.Website,
                     RegistrationNumber = updateDto.RegistrationNumber,
-                    Tabs = updateDto.Tabs
+                    Tabs = updateDto.Tabs,
+                    chBounceCharge = updateDto.chBounceCharge,
+                    targetDropdown = updateDto.targetDropdown,
+                    dropdownArray = updateDto.dropdownArray
                 };
 
                 society.PendingChanges = JsonSerializer.Serialize(pendingChanges);
@@ -344,7 +357,13 @@ namespace FintcsApi.Controllers
                         society.RegistrationNumber = pendingChanges.RegistrationNumber;
                         society.Tabs = JsonSerializer.Serialize(pendingChanges.Tabs);
                         society.UpdatedAt = DateTime.UtcNow;
+
+                        // New fields
+                        society.chBounceCharge = pendingChanges.chBounceCharge;
+                        society.targetDropdown = pendingChanges.targetDropdown;
+                        society.dropdownArray = pendingChanges.dropdownArray;
                     }
+
 
                     // Clear pending changes
                     society.PendingChanges = "{}";

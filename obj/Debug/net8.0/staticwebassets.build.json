@@ -1,11 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "rM8BuPLVFPxr5nBghyjdryi4U/4uhFqB4It0gwCbmrE=",
-  "Source": "FintcsApi",
-  "BasePath": "_content/FintcsApi",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
-}
+{"Version":1,"Hash":"lcgiVB/jnaDa1t4IZ4obXqJuLkAtebnH5/NCDitPNCY=","Source":"FintcsApi","BasePath":"_content/FintcsApi","Mode":"Default","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}

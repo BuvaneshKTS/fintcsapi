@@ -17,6 +17,9 @@ namespace FintcsApi.Models
         public string Email { get; set; } = "";
         public string Website { get; set; } = "";
         public string RegistrationNumber { get; set; } = "";
+        public string chBounceCharge {get; set; } = "";
+        public string targetDropdown {get; set; } = "";
+        public string dropdownArray {get; set; } = "[]";
         
         // JSON string for tabs configuration
         public string Tabs { get; set; } = "{}";
@@ -65,5 +68,8 @@ namespace FintcsApi.Models
         public string Website { get; set; } = "";
         public string RegistrationNumber { get; set; } = "";
         public SocietyTabsDto Tabs { get; set; } = new();
+        public string chBounceCharge {get; set; } = "";
+        public string targetDropdown {get; set; } = "";
+        public string dropdownArray {get; set; } = "[]";
     }
 }
