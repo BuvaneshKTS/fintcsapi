@@ -39,7 +39,7 @@ namespace FintcsApi.Models
         
         // JSON string to store pending changes until approved
         public string PendingChanges { get; set; } = "{}";
-        
+        public string cdAmount {get; set; } = "";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
@@ -52,6 +52,7 @@ namespace FintcsApi.Models
         public string IFSCCode { get; set; } = "";
         public string BranchName { get; set; } = "";
         public string AccountHolderName { get; set; } = "";
+        public string share {get; set; } = "0";
     }
 
     public class MemberCreateDto
@@ -73,7 +74,7 @@ namespace FintcsApi.Models
         public string Email { get; set; } = "";
         public DateTime DOJOrg { get; set; }
         public DateTime? DOR { get; set; }
-        
+        public string cdAmount {get; set; } = "";
         public string Nominee { get; set; } = "";
         public string NomineeRelation { get; set; } = "";
         public BankingDetailsDto BankingDetails { get; set; } = new();
@@ -97,7 +98,7 @@ namespace FintcsApi.Models
         public string Email { get; set; } = "";
         public DateTime DOJOrg { get; set; }
         public DateTime? DOR { get; set; }
-        
+        public string cdAmount {get; set; } = "";
         public string Nominee { get; set; } = "";
         public string NomineeRelation { get; set; } = "";
         public BankingDetailsDto BankingDetails { get; set; } = new();
@@ -128,5 +129,6 @@ namespace FintcsApi.Models
         public bool IsPendingApproval { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string cdAmount {get; set; } = "";
     }
 }

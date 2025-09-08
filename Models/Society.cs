@@ -17,9 +17,9 @@ namespace FintcsApi.Models
         public string Email { get; set; } = "";
         public string Website { get; set; } = "";
         public string RegistrationNumber { get; set; } = "";
-        public string chBounceCharge {get; set; } = "";
-        public string targetDropdown {get; set; } = "";
-        public string dropdownArray {get; set; } = "[]";
+        public string chBounceCharge { get; set; } = "";
+        public string targetDropdown { get; set; } = "";
+        public string dropdownArray { get; set; } = "[]";
         
         // JSON string for tabs configuration
         public string Tabs { get; set; } = "{}";
@@ -67,9 +67,23 @@ namespace FintcsApi.Models
         public string Email { get; set; } = "";
         public string Website { get; set; } = "";
         public string RegistrationNumber { get; set; } = "";
+        
+        // Flat structure for interest rates
+        public decimal Dividend { get; set; }
+        public decimal Overdraft { get; set; }
+        public decimal CurrentDeposit { get; set; }
+        public decimal Loan { get; set; }
+        public decimal EmergencyLoan { get; set; }
+        public decimal LAS { get; set; }
+        
+        // Flat structure for limits
+        public decimal ShareLimit { get; set; }
+        public decimal LoanLimit { get; set; }
+        public decimal EmergencyLoanLimit { get; set; }
+        
         public SocietyTabsDto Tabs { get; set; } = new();
-        public string chBounceCharge {get; set; } = "";
-        public string targetDropdown {get; set; } = "";
-        public string dropdownArray {get; set; } = "[]";
+        public string chBounceCharge { get; set; } = "";
+        public string targetDropdown { get; set; } = "";
+        public string dropdownArray { get; set; } = "[]";
     }
 }

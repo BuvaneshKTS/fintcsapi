@@ -121,27 +121,23 @@ namespace FintcsApi.Controllers
         }
 
         // PUT: api/society (Admin only)
-        [HttpPut]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> UpdateSociety([FromBody] SocietyUpdateDto updateDto)
-        {
-            try
+        // SocietyController.cs (Updated PUT method)
+            [HttpPut]
+            [Authorize(Roles = "admin")]
+            public async Task<IActionResult> UpdateSociety([FromBody] SocietyUpdateDto updateDto)
             {
-                var society = await _context.Societies.FirstOrDefaultAsync();
-                
-                // If no society exists, create one
-                if (society == null)
+                try
                 {
-                    society = new Society();
-                    _context.Societies.Add(society);
-                }
+                    var society = await _context.Societies.FirstOrDefaultAsync();
 
-                // Check if there are any non-admin users in the system
-                var nonAdminUsers = await _context.Users.Where(u => !u.Details.Contains("\"role\":\"admin\"")).ToListAsync();
-                
-                if (nonAdminUsers.Count == 0)
-                {
-                    // No users to approve, apply changes immediately
+                    // If no society exists, create one
+                    if (society == null)
+                    {
+                        society = new Society();
+                        _context.Societies.Add(society);
+                    }
+
+                    // Apply changes directly
                     society.SocietyName = updateDto.SocietyName;
                     society.Address = updateDto.Address;
                     society.City = updateDto.City;
@@ -150,14 +146,34 @@ namespace FintcsApi.Controllers
                     society.Email = updateDto.Email;
                     society.Website = updateDto.Website;
                     society.RegistrationNumber = updateDto.RegistrationNumber;
-                    society.Tabs = JsonSerializer.Serialize(updateDto.Tabs);
+                    
+                    // Create tabs object from flat structure (for backward compatibility)
+                    var tabs = new SocietyTabsDto
+                    {
+                        Interest = new InterestRatesDto
+                        {
+                            Dividend = updateDto.Dividend,
+                            OD = updateDto.Overdraft,
+                            CD = updateDto.CurrentDeposit,
+                            Loan = updateDto.Loan,
+                            EmergencyLoan = updateDto.EmergencyLoan,
+                            LAS = updateDto.LAS
+                        },
+                        Limit = new LimitsDto
+                        {
+                            Share = updateDto.ShareLimit,
+                            Loan = updateDto.LoanLimit,
+                            EmergencyLoan = updateDto.EmergencyLoanLimit
+                        }
+                    };
+                    
+                    society.Tabs = JsonSerializer.Serialize(tabs);
                     society.UpdatedAt = DateTime.UtcNow;
                     society.chBounceCharge = updateDto.chBounceCharge;
                     society.targetDropdown = updateDto.targetDropdown;
                     society.dropdownArray = updateDto.dropdownArray;
 
-
-                    // Clear any pending state
+                    // Always save directly
                     society.PendingChanges = "{}";
                     society.IsPendingApproval = false;
 
@@ -166,114 +182,22 @@ namespace FintcsApi.Controllers
                     return Ok(new ApiResponse<object>
                     {
                         Success = true,
-                        Message = "Society updated successfully (no users to approve)."
+                        Message = "Society updated successfully."
                     });
                 }
-
-                // Store the changes in PendingChanges
-                var pendingChanges = new
+                catch (Exception ex)
                 {
-                    SocietyName = updateDto.SocietyName,
-                    Address = updateDto.Address,
-                    City = updateDto.City,
-                    Phone = updateDto.Phone,
-                    Fax = updateDto.Fax,
-                    Email = updateDto.Email,
-                    Website = updateDto.Website,
-                    RegistrationNumber = updateDto.RegistrationNumber,
-                    Tabs = updateDto.Tabs,
-                    chBounceCharge = updateDto.chBounceCharge,
-                    targetDropdown = updateDto.targetDropdown,
-                    dropdownArray = updateDto.dropdownArray
-                };
-
-                society.PendingChanges = JsonSerializer.Serialize(pendingChanges);
-                society.IsPendingApproval = true;
-
-                // Clear any existing approvals for this society (for new change request)
-                var existingApprovals = await _context.SocietyApprovals
-                    .Where(a => a.SocietyId == society.Id)
-                    .ToListAsync();
-                _context.SocietyApprovals.RemoveRange(existingApprovals);
-
-                await _context.SaveChangesAsync();
-
-                return Ok(new ApiResponse<object>
-                {
-                    Success = true,
-                    Message = $"Society update submitted for approval. All {nonAdminUsers.Count} users must approve before changes become permanent.",
-                    Data = new { 
-                        RequiredApprovals = nonAdminUsers.Count 
-                    }
-                });
+                    return StatusCode(500, new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Error updating society information",
+                        Errors = new[] { ex.Message }
+                    });
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ApiResponse<object>
-                {
-                    Success = false,
-                    Message = "Error updating society information",
-                    Errors = new[] { ex.Message }
-                });
-            }
-        }
 
-        // POST: api/society/approve-changes
-        // [HttpPost("approve-changes")]
-        // public async Task<IActionResult> ApprovePendingChanges()
-        // {
-        //     try
-        //     {
-        //         var society = await _context.Societies.FirstOrDefaultAsync();
-                
-        //         if (society == null || !society.IsPendingApproval)
-        //         {
-        //             return BadRequest(new ApiResponse<object>
-        //             {
-        //                 Success = false,
-        //                 Message = "No pending changes to approve"
-        //             });
-        //         }
 
-        //         // Parse pending changes and apply them
-        //         var pendingChanges = JsonSerializer.Deserialize<SocietyUpdateDto>(society.PendingChanges);
-                
-        //         if (pendingChanges != null)
-        //         {
-        //             society.SocietyName = pendingChanges.SocietyName;
-        //             society.Address = pendingChanges.Address;
-        //             society.City = pendingChanges.City;
-        //             society.Phone = pendingChanges.Phone;
-        //             society.Fax = pendingChanges.Fax;
-        //             society.Email = pendingChanges.Email;
-        //             society.Website = pendingChanges.Website;
-        //             society.RegistrationNumber = pendingChanges.RegistrationNumber;
-        //             society.Tabs = JsonSerializer.Serialize(pendingChanges.Tabs);
-        //         }
-
-        //         // Clear pending changes
-        //         society.PendingChanges = "{}";
-        //         society.IsPendingApproval = false;
-
-        //         await _context.SaveChangesAsync();
-
-        //         return Ok(new ApiResponse<Society>
-        //         {
-        //             Success = true,
-        //             Data = society,
-        //             Message = "Society changes approved and applied successfully"
-        //         });
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new ApiResponse<object>
-        //         {
-        //             Success = false,
-        //             Message = "Error approving society changes",
-        //             Errors = new[] { ex.Message }
-        //         });
-        //     }
-        // }
+        
 
         // POST: api/society/approve-changes
         [HttpPost("approve-changes")]
