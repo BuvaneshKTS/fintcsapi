@@ -122,79 +122,79 @@ namespace FintcsApi.Controllers
 
         // PUT: api/society (Admin only)
         // SocietyController.cs (Updated PUT method)
-            [HttpPut]
-            [Authorize(Roles = "admin")]
-            public async Task<IActionResult> UpdateSociety([FromBody] SocietyUpdateDto updateDto)
+        [HttpPut]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> UpdateSociety([FromBody] SocietyUpdateDto updateDto)
+        {
+            try
             {
-                try
-                {
-                    var society = await _context.Societies.FirstOrDefaultAsync();
+                var society = await _context.Societies.FirstOrDefaultAsync();
 
-                    // If no society exists, create one
-                    if (society == null)
+                // If no society exists, create one
+                if (society == null)
+                {
+                    society = new Society();
+                    _context.Societies.Add(society);
+                }
+
+                // Apply changes directly
+                society.SocietyName = updateDto.SocietyName;
+                society.Address = updateDto.Address;
+                society.City = updateDto.City;
+                society.Phone = updateDto.Phone;
+                society.Fax = updateDto.Fax;
+                society.Email = updateDto.Email;
+                society.Website = updateDto.Website;
+                society.RegistrationNumber = updateDto.RegistrationNumber;
+                
+                // Create tabs object from flat structure (for backward compatibility)
+                var tabs = new SocietyTabsDto
+                {
+                    Interest = new InterestRatesDto
                     {
-                        society = new Society();
-                        _context.Societies.Add(society);
+                        Dividend = updateDto.Dividend,
+                        OD = updateDto.Overdraft,
+                        CD = updateDto.CurrentDeposit,
+                        Loan = updateDto.Loan,
+                        EmergencyLoan = updateDto.EmergencyLoan,
+                        LAS = updateDto.LAS
+                    },
+                    Limit = new LimitsDto
+                    {
+                        Share = updateDto.ShareLimit,
+                        Loan = updateDto.LoanLimit,
+                        EmergencyLoan = updateDto.EmergencyLoanLimit
                     }
+                };
+                
+                society.Tabs = JsonSerializer.Serialize(tabs);
+                society.UpdatedAt = DateTime.UtcNow;
+                society.chBounceCharge = updateDto.chBounceCharge;
+                society.targetDropdown = updateDto.targetDropdown;
+                society.dropdownArray = updateDto.dropdownArray;
 
-                    // Apply changes directly
-                    society.SocietyName = updateDto.SocietyName;
-                    society.Address = updateDto.Address;
-                    society.City = updateDto.City;
-                    society.Phone = updateDto.Phone;
-                    society.Fax = updateDto.Fax;
-                    society.Email = updateDto.Email;
-                    society.Website = updateDto.Website;
-                    society.RegistrationNumber = updateDto.RegistrationNumber;
-                    
-                    // Create tabs object from flat structure (for backward compatibility)
-                    var tabs = new SocietyTabsDto
-                    {
-                        Interest = new InterestRatesDto
-                        {
-                            Dividend = updateDto.Dividend,
-                            OD = updateDto.Overdraft,
-                            CD = updateDto.CurrentDeposit,
-                            Loan = updateDto.Loan,
-                            EmergencyLoan = updateDto.EmergencyLoan,
-                            LAS = updateDto.LAS
-                        },
-                        Limit = new LimitsDto
-                        {
-                            Share = updateDto.ShareLimit,
-                            Loan = updateDto.LoanLimit,
-                            EmergencyLoan = updateDto.EmergencyLoanLimit
-                        }
-                    };
-                    
-                    society.Tabs = JsonSerializer.Serialize(tabs);
-                    society.UpdatedAt = DateTime.UtcNow;
-                    society.chBounceCharge = updateDto.chBounceCharge;
-                    society.targetDropdown = updateDto.targetDropdown;
-                    society.dropdownArray = updateDto.dropdownArray;
+                // Always save directly
+                society.PendingChanges = "{}";
+                society.IsPendingApproval = false;
 
-                    // Always save directly
-                    society.PendingChanges = "{}";
-                    society.IsPendingApproval = false;
+                await _context.SaveChangesAsync();
 
-                    await _context.SaveChangesAsync();
-
-                    return Ok(new ApiResponse<object>
-                    {
-                        Success = true,
-                        Message = "Society updated successfully."
-                    });
-                }
-                catch (Exception ex)
+                return Ok(new ApiResponse<object>
                 {
-                    return StatusCode(500, new ApiResponse<object>
-                    {
-                        Success = false,
-                        Message = "Error updating society information",
-                        Errors = new[] { ex.Message }
-                    });
-                }
+                    Success = true,
+                    Message = "Society updated successfully."
+                });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Error updating society information",
+                    Errors = new[] { ex.Message }
+                });
+            }
+        }
 
 
         
