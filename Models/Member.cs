@@ -53,6 +53,7 @@ namespace FintcsApi.Models
         public string BranchName { get; set; } = "";
         public string AccountHolderName { get; set; } = "";
         public string share {get; set; } = "0";
+        public string PayableAt {get; set; } = "";
     }
 
     public class MemberCreateDto

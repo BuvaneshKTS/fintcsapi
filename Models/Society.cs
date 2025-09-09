@@ -1,6 +1,5 @@
 // Models/Society.cs
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FintcsApi.Models
 {
@@ -20,9 +19,12 @@ namespace FintcsApi.Models
         public string chBounceCharge { get; set; } = "";
         public string targetDropdown { get; set; } = "";
         public string dropdownArray { get; set; } = "[]";
-        
+
         // JSON string for tabs configuration
         public string Tabs { get; set; } = "{}";
+
+        // 🔹 New field: LoanTypes as JSON
+        public string LoanTypes { get; set; } = "[]";
         
         public bool IsPendingApproval { get; set; } = false;
         
@@ -57,6 +59,18 @@ namespace FintcsApi.Models
         public decimal EmergencyLoan { get; set; }
     }
 
+    // 🔹 LoanType schema
+    public class LoanTypeDto
+    {
+        public string LoanType { get; set; } = "";
+        public decimal CompulsoryDeposit { get; set; }
+        public decimal OptionalDeposit { get; set; }
+        public decimal Share { get; set; }
+        public decimal Limit { get; set; }
+        public decimal Interest { get; set; }
+        public decimal XTimes { get; set; }   // multiplier (x-times)
+    }
+
     public class SocietyUpdateDto
     {
         public string SocietyName { get; set; } = "";
@@ -85,5 +99,101 @@ namespace FintcsApi.Models
         public string chBounceCharge { get; set; } = "";
         public string targetDropdown { get; set; } = "";
         public string dropdownArray { get; set; } = "[]";
+
+        // 🔹 LoanTypes as strong-typed DTO list
+        public List<LoanTypeDto> LoanTypes { get; set; } = new();
     }
 }
+
+
+
+
+// // Models/Society.cs
+// using System.ComponentModel.DataAnnotations;
+// using System.ComponentModel.DataAnnotations.Schema;
+
+// namespace FintcsApi.Models
+// {
+//     public class Society
+//     {
+//         [Key]
+//         public int Id { get; set; }
+        
+//         public string SocietyName { get; set; } = "";
+//         public string Address { get; set; } = "";
+//         public string City { get; set; } = "";
+//         public string Phone { get; set; } = "";
+//         public string Fax { get; set; } = "";
+//         public string Email { get; set; } = "";
+//         public string Website { get; set; } = "";
+//         public string RegistrationNumber { get; set; } = "";
+//         public string chBounceCharge { get; set; } = "";
+//         public string targetDropdown { get; set; } = "";
+//         public string dropdownArray { get; set; } = "[]";
+        
+//         // JSON string for tabs configuration
+//         public string Tabs { get; set; } = "{}";
+        
+//         public bool IsPendingApproval { get; set; } = false;
+        
+//         // JSON string to store pending changes until approved
+//         public string PendingChanges { get; set; } = "{}";
+        
+//         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+//         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+//     }
+
+//     // DTO classes for the tabs structure
+//     public class SocietyTabsDto
+//     {
+//         public InterestRatesDto Interest { get; set; } = new();
+//         public LimitsDto Limit { get; set; } = new();
+//     }
+
+//     public class InterestRatesDto
+//     {
+//         public decimal Dividend { get; set; }
+//         public decimal OD { get; set; }
+//         public decimal CD { get; set; }
+//         public decimal Loan { get; set; }
+//         public decimal EmergencyLoan { get; set; }
+//         public decimal LAS { get; set; }
+//     }
+
+//     public class LimitsDto
+//     {
+//         public decimal Share { get; set; }
+//         public decimal Loan { get; set; }
+//         public decimal EmergencyLoan { get; set; }
+//     }
+
+//     public class SocietyUpdateDto
+//     {
+//         public string SocietyName { get; set; } = "";
+//         public string Address { get; set; } = "";
+//         public string City { get; set; } = "";
+//         public string Phone { get; set; } = "";
+//         public string Fax { get; set; } = "";
+//         public string Email { get; set; } = "";
+//         public string Website { get; set; } = "";
+//         public string RegistrationNumber { get; set; } = "";
+        
+//         // Flat structure for interest rates
+//         public decimal Dividend { get; set; }
+//         public decimal Overdraft { get; set; }
+//         public decimal CurrentDeposit { get; set; }
+//         public decimal Loan { get; set; }
+//         public decimal EmergencyLoan { get; set; }
+//         public decimal LAS { get; set; }
+        
+//         // Flat structure for limits
+//         public decimal ShareLimit { get; set; }
+//         public decimal LoanLimit { get; set; }
+//         public decimal EmergencyLoanLimit { get; set; }
+        
+//         public SocietyTabsDto Tabs { get; set; } = new();
+//         public string chBounceCharge { get; set; } = "";
+//         public string targetDropdown { get; set; } = "";
+//         public string dropdownArray { get; set; } = "[]";
+//     }
+// }
