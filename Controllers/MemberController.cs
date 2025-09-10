@@ -38,6 +38,10 @@ namespace FintcsApi.Controllers
                     FHName = m.FHName,
                     OfficeAddress = m.OfficeAddress,
                     City = m.City,
+                    cdAmount = m.cdAmount,
+                    Email2 = m.Email2,
+                    Pincode = m.Pincode,
+                    Mobile2 = m.Mobile2,    
                     PhoneOffice = m.PhoneOffice,
                     Branch = m.Branch,
                     PhoneRes = m.PhoneRes,
@@ -99,6 +103,10 @@ namespace FintcsApi.Controllers
                     FHName = member.FHName,
                     OfficeAddress = member.OfficeAddress,
                     City = member.City,
+                    cdAmount = member.cdAmount,
+                    Email2 = member.Email2,
+                    Pincode = member.Pincode,
+                    Mobile2 = member.Mobile2,
                     PhoneOffice = member.PhoneOffice,
                     Branch = member.Branch,
                     PhoneRes = member.PhoneRes,
@@ -165,6 +173,10 @@ namespace FintcsApi.Controllers
                     FHName = createDto.FHName,
                     OfficeAddress = createDto.OfficeAddress,
                     City = createDto.City,
+                    cdAmount = createDto.cdAmount,
+                    Email2 = createDto.Email2,
+                    Pincode = createDto.Pincode,
+                    Mobile2 = createDto.Mobile2,
                     PhoneOffice = createDto.PhoneOffice,
                     Branch = createDto.Branch,
                     PhoneRes = createDto.PhoneRes,
@@ -192,6 +204,10 @@ namespace FintcsApi.Controllers
                     FHName = member.FHName,
                     OfficeAddress = member.OfficeAddress,
                     City = member.City,
+                    cdAmount = member.cdAmount,
+                    Email2 = member.Email2,
+                    Pincode = member.Pincode,
+                    Mobile2 = member.Mobile2,
                     PhoneOffice = member.PhoneOffice,
                     Branch = member.Branch,
                     PhoneRes = member.PhoneRes,
@@ -253,6 +269,10 @@ namespace FintcsApi.Controllers
                     FHName = updateDto.FHName,
                     OfficeAddress = updateDto.OfficeAddress,
                     City = updateDto.City,
+                    cdAmount = updateDto.cdAmount,
+                    Email2 = updateDto.Email2,
+                    Pincode = updateDto.Pincode,    
+                    Mobile2 = updateDto.Mobile2,
                     PhoneOffice = updateDto.PhoneOffice,
                     Branch = updateDto.Branch,
                     PhoneRes = updateDto.PhoneRes,
@@ -326,6 +346,10 @@ namespace FintcsApi.Controllers
                     member.FHName = pendingChanges.FHName;
                     member.OfficeAddress = pendingChanges.OfficeAddress;
                     member.City = pendingChanges.City;
+                    member.cdAmount = pendingChanges.cdAmount;
+                    member.Email2 = pendingChanges.Email2;
+                    member.Pincode = pendingChanges.Pincode;
+                    member.Mobile2 = pendingChanges.Mobile2;
                     member.PhoneOffice = pendingChanges.PhoneOffice;
                     member.Branch = pendingChanges.Branch;
                     member.PhoneRes = pendingChanges.PhoneRes;
@@ -356,6 +380,10 @@ namespace FintcsApi.Controllers
                     FHName = member.FHName,
                     OfficeAddress = member.OfficeAddress,
                     City = member.City,
+                    cdAmount = member.cdAmount,
+                    Email2 = member.Email2,
+                    Pincode = member.Pincode,
+                    Mobile2 = member.Mobile2,
                     PhoneOffice = member.PhoneOffice,
                     Branch = member.Branch,
                     PhoneRes = member.PhoneRes,

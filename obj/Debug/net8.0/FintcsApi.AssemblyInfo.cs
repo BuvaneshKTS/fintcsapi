@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FintcsApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+547df4b3f9460535a1c246f2f28d92953667916b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2fdc1fa2f969821bd03dd67466cc39e820176487")]
 [assembly: System.Reflection.AssemblyProductAttribute("FintcsApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FintcsApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
