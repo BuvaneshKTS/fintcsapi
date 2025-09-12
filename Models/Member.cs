@@ -24,11 +24,11 @@ namespace FintcsApi.Models
         public string Designation { get; set; } = "";
         public string ResidenceAddress { get; set; } = "";
         public string Pincode { get; set; } = "";
-        public DateTime DOB { get; set; }
-        public DateTime DOJSociety { get; set; }
+        public DateTime? DOB { get; set; }
+        public DateTime? DOJSociety { get; set; }
         public string Email { get; set; } = "";
         public string Email2 { get; set; } = "";
-        public DateTime DOJOrg { get; set; }
+        public DateTime? DOJOrg { get; set; }
         public DateTime? DOR { get; set; } // Nullable for active members
         
         public string Nominee { get; set; } = "";
@@ -60,7 +60,6 @@ namespace FintcsApi.Models
 
     public class MemberCreateDto
     {
-        [Required]
         public string Name { get; set; } = "";
         public string FHName { get; set; } = "";
         public string OfficeAddress { get; set; } = "";
@@ -73,17 +72,21 @@ namespace FintcsApi.Models
         public string Designation { get; set; } = "";
         public string ResidenceAddress { get; set; } = "";
         public string Pincode { get; set; } = "";
-        public DateTime DOB { get; set; }
-        public DateTime DOJSociety { get; set; }
+
+        public DateTime? DOB { get; set; }
+        public DateTime? DOJSociety { get; set; }
+        public DateTime? DOJOrg { get; set; }
+        public DateTime? DOR { get; set; }
+
         public string Email { get; set; } = "";
         public string Email2 { get; set; } = "";
-        public DateTime DOJOrg { get; set; }
-        public DateTime? DOR { get; set; }
-        public string cdAmount {get; set; } = "";
+        public string cdAmount { get; set; } = "";
         public string Nominee { get; set; } = "";
         public string NomineeRelation { get; set; } = "";
+
         public BankingDetailsDto BankingDetails { get; set; } = new();
     }
+
 
     public class MemberUpdateDto
     {
@@ -99,11 +102,11 @@ namespace FintcsApi.Models
         public string Designation { get; set; } = "";
         public string ResidenceAddress { get; set; } = "";
         public string Pincode { get; set; } = "";
-        public DateTime DOB { get; set; }
-        public DateTime DOJSociety { get; set; }
+        public DateTime? DOB { get; set; }
+        public DateTime? DOJSociety { get; set; }
         public string Email { get; set; } = "";
         public string Email2 { get; set; } = "";
-        public DateTime DOJOrg { get; set; }
+        public DateTime? DOJOrg { get; set; }
         public DateTime? DOR { get; set; }
         public string cdAmount {get; set; } = "";
         public string Nominee { get; set; } = "";
@@ -126,12 +129,12 @@ namespace FintcsApi.Models
         public string Mobile2 { get; set; } = "";
         public string Designation { get; set; } = "";
         public string ResidenceAddress { get; set; } = "";
-        public DateTime DOB { get; set; }
-        public DateTime DOJSociety { get; set; }
+        public DateTime? DOB { get; set; }
+        public DateTime? DOJSociety { get; set; }
         public string Email { get; set; } = "";
         public string Email2 { get; set; } = "";
         public string Pincode { get; set; } = "";
-        public DateTime DOJOrg { get; set; }
+        public DateTime? DOJOrg { get; set; }
         public DateTime? DOR { get; set; }
         public string Nominee { get; set; } = "";
         public string NomineeRelation { get; set; } = "";
