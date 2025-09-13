@@ -1,4 +1,3 @@
-// Controllers/LoanTakenController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FintcsApi.Data;
@@ -58,7 +57,6 @@ namespace FintcsApi.Controllers
                 });
             }
 
-            // Backend validations
             if (dto.Installments <= 0 || dto.Installments > 60)
             {
                 return BadRequest(new ApiResponse<object>
@@ -79,30 +77,52 @@ namespace FintcsApi.Controllers
                 });
             }
 
-            // Auto calculations
+            // ✅ Auto-generate LoanNo if not provided
+            string loanNo = dto.LoanNo;
+            if (string.IsNullOrWhiteSpace(loanNo))
+            {
+                var lastLoan = await _context.Loans
+                    .OrderByDescending(l => l.Id)
+                    .FirstOrDefaultAsync();
+
+                int lastNumber = 0;
+                if (lastLoan != null && !string.IsNullOrWhiteSpace(lastLoan.LoanNo))
+                {
+                    var parts = lastLoan.LoanNo.Split('_');
+                    if (parts.Length == 2 && int.TryParse(parts[1], out int parsed))
+                    {
+                        lastNumber = parsed;
+                    }
+                }
+
+                loanNo = $"Loan_{(lastNumber + 1):D3}";
+            }
+
             var loan = new LoanTaken
             {
-                LoanNo = dto.LoanNo,
-                LoanDate = dto.LoanDate,
+                LoanNo = loanNo,
+                LoanDate = DateTime.SpecifyKind(dto.LoanDate, DateTimeKind.Utc),
                 LoanType = dto.LoanType,
                 CustomType = dto.CustomType,
                 MemberNo = dto.MemberNo,
                 LoanAmount = dto.LoanAmount,
                 PreviousLoan = dto.PreviousLoan,
                 Installments = dto.Installments,
-                Purpose = dto.Purpose,
-                AuthorizedBy = dto.AuthorizedBy,
+                Purpose = dto.Purpose ?? string.Empty,
+                AuthorizedBy = dto.AuthorizedBy ?? string.Empty,
                 PaymentMode = dto.PaymentMode,
                 Bank = dto.Bank,
                 ChequeNo = dto.ChequeNo,
-                ChequeDate = dto.ChequeDate
-            };
+                ChequeDate = dto.ChequeDate.HasValue ? DateTime.SpecifyKind(dto.ChequeDate.Value, DateTimeKind.Utc) : null,
+                CreatedAt = DateTime.UtcNow,
+                Status = "Active",
 
-            loan.NetLoan = loan.LoanAmount + loan.PreviousLoan;
-            loan.InstallmentAmount = Math.Round(((loan.LoanAmount * 0.07m) + loan.LoanAmount) / loan.Installments, 2);
-            var requiredShare = loan.LoanAmount * 0.1m;
-            loan.NewLoanShare = requiredShare; // TODO: compare with member.Share if you add that
-            loan.PayAmount = (loan.LoanAmount - loan.PreviousLoan) - loan.NewLoanShare;
+                // ✅ Directly take frontend-calculated values
+                NetLoan = dto.NetLoan,
+                InstallmentAmount = dto.InstallmentAmount,
+                NewLoanShare = dto.NewLoanShare,
+                PayAmount = dto.PayAmount
+            };
 
             _context.Loans.Add(loan);
             await _context.SaveChangesAsync();
@@ -119,7 +139,8 @@ namespace FintcsApi.Controllers
                 InstallmentAmount = loan.InstallmentAmount,
                 NewLoanShare = loan.NewLoanShare,
                 PayAmount = loan.PayAmount,
-                CreatedAt = loan.CreatedAt
+                CreatedAt = loan.CreatedAt,
+                Status = loan.Status
             };
 
             return Ok(new ApiResponse<LoanTakenResponseDto>
@@ -129,6 +150,8 @@ namespace FintcsApi.Controllers
                 Data = response
             });
         }
+
+
 
         // ---------------- GET ALL LOANS ----------------
         [HttpGet]
@@ -141,8 +164,18 @@ namespace FintcsApi.Controllers
                     LoanNo = l.LoanNo,
                     LoanDate = l.LoanDate,
                     LoanType = l.LoanType,
+                    CustomType = l.CustomType,
                     MemberNo = l.MemberNo,
                     LoanAmount = l.LoanAmount,
+                    PreviousLoan = l.PreviousLoan,
+                    Installments = l.Installments,
+                    Purpose = l.Purpose,
+                    AuthorizedBy = l.AuthorizedBy,
+                    PaymentMode = l.PaymentMode,
+                    Bank = l.Bank,
+                    ChequeNo = l.ChequeNo,
+                    ChequeDate = l.ChequeDate,
+                    Status = l.Status,
                     NetLoan = l.NetLoan,
                     InstallmentAmount = l.InstallmentAmount,
                     NewLoanShare = l.NewLoanShare,
@@ -158,5 +191,6 @@ namespace FintcsApi.Controllers
                 Data = loans
             });
         }
+
     }
 }

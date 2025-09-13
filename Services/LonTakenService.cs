@@ -23,11 +23,10 @@ namespace FintcsApi.Services
 
         public async Task<LoanTaken> CreateLoanAsync(LoanTaken loan)
         {
-            loan.NetLoan = loan.LoanAmount + loan.PreviousLoan;
-            loan.InstallmentAmount = Math.Round(((loan.LoanAmount * 0.07m) + loan.LoanAmount) / loan.Installments, 2);
-            var requiredShare = loan.LoanAmount * 0.1m;
-            loan.NewLoanShare = requiredShare;
-            loan.PayAmount = (loan.LoanAmount - loan.PreviousLoan) - loan.NewLoanShare;
+            if (string.IsNullOrEmpty(loan.LoanNo))
+            {
+                loan.LoanNo = await GenerateLoanNoAsync();
+            }
 
             _context.Loans.Add(loan);
             await _context.SaveChangesAsync();
@@ -38,6 +37,26 @@ namespace FintcsApi.Services
         public async Task<List<LoanTaken>> GetLoansAsync()
         {
             return await _context.Loans.ToListAsync();
+        }
+
+        public async Task<string> GenerateLoanNoAsync()
+        {
+            var lastLoan = await _context.Loans
+                .OrderByDescending(l => l.Id)
+                .FirstOrDefaultAsync();
+
+            if (lastLoan == null || string.IsNullOrEmpty(lastLoan.LoanNo))
+            {
+                return "Loan_001";
+            }
+
+            var lastNumberStr = lastLoan.LoanNo.Split('_').Last();
+            if (!int.TryParse(lastNumberStr, out int lastNumber))
+            {
+                lastNumber = 0;
+            }
+
+            return $"Loan_{(lastNumber + 1):D3}";
         }
     }
 }
