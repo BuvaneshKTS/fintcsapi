@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace FintcsApi.Data.Migrations
+namespace FintcsApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250910093511_AddNewFieldsToMember")]
-    partial class AddNewFieldsToMember
+    [Migration("20250918063849_SplitUserDetails")]
+    partial class SplitUserDetails
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,70 +35,138 @@ namespace FintcsApi.Data.Migrations
 
                     b.Property<string>("AuthorizedBy")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("");
 
                     b.Property<string>("Bank")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime?>("ChequeDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ChequeNo")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("CustomType")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<decimal>("InstallmentAmount")
-                        .HasColumnType("numeric");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<int>("Installments")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("LoanAmount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime>("LoanDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LoanNo")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("LoanType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.Property<string>("MemberNo")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("MemberId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("NetLoan")
-                        .HasColumnType("numeric");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("NewLoanShare")
-                        .HasColumnType("numeric");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("PayAmount")
-                        .HasColumnType("numeric");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("PaymentMode")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Cash");
 
                     b.Property<decimal>("PreviousLoan")
-                        .HasColumnType("numeric");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("Purpose")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasDefaultValue("");
+
+                    b.Property<string>("Status")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Loans");
+                    b.ToTable("Loans", (string)null);
+                });
+
+            modelBuilder.Entity("FintcsApi.Models.LoanType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CompulsoryDeposit")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Interest")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("LimitAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("LoanTypeName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("OptionalDeposit")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Share")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("SocietyId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("XTimes")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SocietyId");
+
+                    b.ToTable("LoanTypes");
                 });
 
             modelBuilder.Entity("FintcsApi.Models.Member", b =>
@@ -109,11 +177,13 @@ namespace FintcsApi.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BankingDetails")
+                    b.Property<string>("AccountNumber")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("{}");
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Branch")
                         .IsRequired()
@@ -124,17 +194,12 @@ namespace FintcsApi.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<DateTime>("DOB")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DOJOrg")
+                    b.Property<DateTime?>("DOB")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DOJSociety")
+                    b.Property<DateTime?>("DOJSociety")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DOR")
@@ -146,8 +211,7 @@ namespace FintcsApi.Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Email2")
                         .IsRequired()
@@ -157,18 +221,9 @@ namespace FintcsApi.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsPendingApproval")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("MemNo")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
                     b.Property<string>("Mobile")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Mobile2")
                         .IsRequired()
@@ -176,8 +231,7 @@ namespace FintcsApi.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nominee")
                         .IsRequired()
@@ -191,11 +245,9 @@ namespace FintcsApi.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("PendingChanges")
+                    b.Property<string>("PayableAt")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("{}");
+                        .HasColumnType("text");
 
                     b.Property<string>("PhoneOffice")
                         .IsRequired()
@@ -213,19 +265,26 @@ namespace FintcsApi.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Share")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SocietyId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("cdAmount")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MemNo")
-                        .IsUnique();
 
                     b.ToTable("Members");
                 });
@@ -249,7 +308,7 @@ namespace FintcsApi.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -259,19 +318,6 @@ namespace FintcsApi.Data.Migrations
                     b.Property<string>("Fax")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsPendingApproval")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("LoanTypes")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PendingChanges")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("{}");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -287,26 +333,16 @@ namespace FintcsApi.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("Tabs")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("{}");
-
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Website")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("chBounceCharge")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("dropdownArray")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -340,10 +376,14 @@ namespace FintcsApi.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("UserId1")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("SocietyId", "UserId")
-                        .IsUnique();
+                    b.HasIndex("SocietyId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("SocietyApprovals");
                 });
@@ -356,25 +396,74 @@ namespace FintcsApi.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AddressOffice")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("AddressResidential")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<string>("Details")
+                    b.Property<string>("Designation")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("{}");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("EDPNo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Mobile")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("PhoneOffice")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("PhoneResidential")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -389,6 +478,17 @@ namespace FintcsApi.Data.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("FintcsApi.Models.LoanType", b =>
+                {
+                    b.HasOne("FintcsApi.Models.Society", "Society")
+                        .WithMany("LoanTypes")
+                        .HasForeignKey("SocietyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Society");
+                });
+
             modelBuilder.Entity("FintcsApi.Models.SocietyApproval", b =>
                 {
                     b.HasOne("FintcsApi.Models.Society", "Society")
@@ -397,7 +497,20 @@ namespace FintcsApi.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FintcsApi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Society");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FintcsApi.Models.Society", b =>
+                {
+                    b.Navigation("LoanTypes");
                 });
 #pragma warning restore 612, 618
         }

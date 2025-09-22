@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using FintcsApi.Data;
 using FintcsApi.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FintcsApi.Services
 {
@@ -14,49 +16,45 @@ namespace FintcsApi.Services
             _context = context;
         }
 
-        public async Task<List<object>> GetMembersAsync()
+        /// <summary>
+        /// Get list of members (Id, Name only)
+        /// </summary>
+        public async Task<List<MemberListDto>> GetMembersAsync()
         {
             return await _context.Members
-                .Select(m => new { m.Id, m.MemNo, m.Name })
-                .ToListAsync<object>();
+                .Select(m => new MemberListDto 
+                { 
+                    Id = m.Id, 
+                    Name = m.Name 
+                })
+                .ToListAsync();
         }
 
+        /// <summary>
+        /// Create a new loan entry
+        /// </summary>
         public async Task<LoanTaken> CreateLoanAsync(LoanTaken loan)
         {
-            if (string.IsNullOrEmpty(loan.LoanNo))
-            {
-                loan.LoanNo = await GenerateLoanNoAsync();
-            }
-
             _context.Loans.Add(loan);
             await _context.SaveChangesAsync();
-
             return loan;
         }
 
+        /// <summary>
+        /// Get all loans
+        /// </summary>
         public async Task<List<LoanTaken>> GetLoansAsync()
         {
             return await _context.Loans.ToListAsync();
         }
+    }
 
-        public async Task<string> GenerateLoanNoAsync()
-        {
-            var lastLoan = await _context.Loans
-                .OrderByDescending(l => l.Id)
-                .FirstOrDefaultAsync();
-
-            if (lastLoan == null || string.IsNullOrEmpty(lastLoan.LoanNo))
-            {
-                return "Loan_001";
-            }
-
-            var lastNumberStr = lastLoan.LoanNo.Split('_').Last();
-            if (!int.TryParse(lastNumberStr, out int lastNumber))
-            {
-                lastNumber = 0;
-            }
-
-            return $"Loan_{(lastNumber + 1):D3}";
-        }
+    /// <summary>
+    /// DTO for lightweight member listing
+    /// </summary>
+    public class MemberListDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }

@@ -496,6 +496,7 @@ C:/Bhuvanesh/FINTCS/fintcsapi-1/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.Post
 /home/runner/workspace/bin/Debug/net8.0/Npgsql.dll
 /home/runner/workspace/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\Users\krita\Downloads\fintcsapi\bin\Debug\net8.0\appsettings.json
+C:\Users\krita\Downloads\fintcsapi\bin\Debug\net8.0\demanddata.json
 C:\Users\krita\Downloads\fintcsapi\bin\Debug\net8.0\FintcsApi.staticwebassets.endpoints.json
 C:\Users\krita\Downloads\fintcsapi\bin\Debug\net8.0\FintcsApi.exe
 C:\Users\krita\Downloads\fintcsapi\bin\Debug\net8.0\FintcsApi.deps.json

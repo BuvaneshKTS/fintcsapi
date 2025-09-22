@@ -1,160 +1,48 @@
-// Models/Member.cs
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+// ================================
+// File: Models/Member.cs
+// ================================
+using System;
 
 namespace FintcsApi.Models
 {
     public class Member
     {
-        [Key]
         public int Id { get; set; }
-        
-        // Auto-generated member number (MEM_001, MEM_002, etc.)
-        public string MemNo { get; set; } = "";
-        
-        public string Name { get; set; } = "";
-        public string FHName { get; set; } = "";
+
+        // ✅ Required fields
+        public string Name { get; set; } = null!;
+        public string FHName { get; set; } = null!;
+        public string Mobile { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Status { get; set; } = "Active";
+
+        // ✅ Optional fields (default empty to avoid nulls)
         public string OfficeAddress { get; set; } = "";
         public string City { get; set; } = "";
         public string PhoneOffice { get; set; } = "";
         public string Branch { get; set; } = "";
         public string PhoneRes { get; set; } = "";
-        public string Mobile { get; set; } = "";
-        public string Mobile2 { get; set; } = "";
         public string Designation { get; set; } = "";
         public string ResidenceAddress { get; set; } = "";
-        public string Pincode { get; set; } = "";
         public DateTime? DOB { get; set; }
         public DateTime? DOJSociety { get; set; }
-        public string Email { get; set; } = "";
-        public string Email2 { get; set; } = "";
-        public DateTime? DOJOrg { get; set; }
-        public DateTime? DOR { get; set; } // Nullable for active members
-        
+        public DateTime? DOR { get; set; }
         public string Nominee { get; set; } = "";
         public string NomineeRelation { get; set; } = "";
-        
-        // JSON string for banking details
-        public string BankingDetails { get; set; } = "{}";
-        
-        public bool IsPendingApproval { get; set; } = false;
-        
-        // JSON string to store pending changes until approved
-        public string PendingChanges { get; set; } = "{}";
-        public string cdAmount { get; set; } = "";
-        
-        // ✅ New Status field
-        public string Status { get; set; } = "Active";
-        
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    }
-
-    // DTO classes for banking details
-    public class BankingDetailsDto
-    {
+        public string cdAmount { get; set; } = "0";
+        public string Email2 { get; set; } = "";
+        public string Mobile2 { get; set; } = "";
+        public string Pincode { get; set; } = "";
         public string BankName { get; set; } = "";
         public string AccountNumber { get; set; } = "";
-        public string IFSCCode { get; set; } = "";
-        public string BranchName { get; set; } = "";
-        public string AccountHolderName { get; set; } = "";
-        public string share { get; set; } = "0";
         public string PayableAt { get; set; } = "";
-    }
 
-    public class MemberCreateDto
-    {
-        public string Name { get; set; } = "";
-        public string FHName { get; set; } = "";
-        public string OfficeAddress { get; set; } = "";
-        public string City { get; set; } = "";
-        public string PhoneOffice { get; set; } = "";
-        public string Branch { get; set; } = "";
-        public string PhoneRes { get; set; } = "";
-        public string Mobile { get; set; } = "";
-        public string Mobile2 { get; set; } = "";
-        public string Designation { get; set; } = "";
-        public string ResidenceAddress { get; set; } = "";
-        public string Pincode { get; set; } = "";
-
-        public DateTime? DOB { get; set; }
-        public DateTime? DOJSociety { get; set; }
-        public DateTime? DOJOrg { get; set; }
-        public DateTime? DOR { get; set; }
-
-        public string Email { get; set; } = "";
-        public string Email2 { get; set; } = "";
-        public string cdAmount { get; set; } = "";
-        public string Nominee { get; set; } = "";
-        public string NomineeRelation { get; set; } = "";
-
-        // ✅ New Status field
-        public string Status { get; set; } = "Active";
-
-        public BankingDetailsDto BankingDetails { get; set; } = new();
-    }
-
-    public class MemberUpdateDto
-    {
-        public string Name { get; set; } = "";
-        public string FHName { get; set; } = "";
-        public string OfficeAddress { get; set; } = "";
-        public string City { get; set; } = "";
-        public string PhoneOffice { get; set; } = "";
-        public string Branch { get; set; } = "";
-        public string PhoneRes { get; set; } = "";
-        public string Mobile { get; set; } = "";
-        public string Mobile2 { get; set; } = "";
-        public string Designation { get; set; } = "";
-        public string ResidenceAddress { get; set; } = "";
-        public string Pincode { get; set; } = "";
-        public DateTime? DOB { get; set; }
-        public DateTime? DOJSociety { get; set; }
-        public string Email { get; set; } = "";
-        public string Email2 { get; set; } = "";
-        public DateTime? DOJOrg { get; set; }
-        public DateTime? DOR { get; set; }
-        public string cdAmount { get; set; } = "";
-        public string Nominee { get; set; } = "";
-        public string NomineeRelation { get; set; } = "";
-
-        // ✅ New Status field
-        public string Status { get; set; } = "Active";
-
-        public BankingDetailsDto BankingDetails { get; set; } = new();
-    }
-
-    public class MemberResponseDto
-    {
-        public int Id { get; set; }
-        public string MemNo { get; set; } = "";
-        public string Name { get; set; } = "";
-        public string FHName { get; set; } = "";
-        public string OfficeAddress { get; set; } = "";
-        public string City { get; set; } = "";
-        public string PhoneOffice { get; set; } = "";
-        public string Branch { get; set; } = "";
-        public string PhoneRes { get; set; } = "";
-        public string Mobile { get; set; } = "";
-        public string Mobile2 { get; set; } = "";
-        public string Designation { get; set; } = "";
-        public string ResidenceAddress { get; set; } = "";
-        public DateTime? DOB { get; set; }
-        public DateTime? DOJSociety { get; set; }
-        public string Email { get; set; } = "";
-        public string Email2 { get; set; } = "";
-        public string Pincode { get; set; } = "";
-        public DateTime? DOJOrg { get; set; }
-        public DateTime? DOR { get; set; }
-        public string Nominee { get; set; } = "";
-        public string NomineeRelation { get; set; } = "";
-        public BankingDetailsDto BankingDetails { get; set; } = new();
-        public bool IsPendingApproval { get; set; }
+        // ✅ Audit fields
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public string cdAmount { get; set; } = "";
 
-        // ✅ New Status field
-        public string Status { get; set; } = "Active";
+        // ✅ Relationship
+        public string SocietyId { get; set; } = "1";
+        public string? Share { get; set; }
     }
 }
